@@ -1,5 +1,5 @@
 {
-    "name": "table-to-xlsx",
+    "name": "@nodewave/table-to-xlsx",
     "version": "0.1.0",
     "description": "Convert HTML tables to Excel files with styling and merged cells",
     "main": "dist/index.js",
@@ -38,12 +38,12 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/rizqyep/table-to-xlsx.git"
+        "url": "git+https://github.com/nodewave-engineering/table-to-xlsx.git"
     },
     "bugs": {
-        "url": "https://github.com/rizqyep/table-to-xlsx/issues"
+        "url": "https://github.com/nodewave-engineering/table-to-xlsx/issues"
     },
-    "homepage": "https://github.com/rizqyep/table-to-xlsx#readme",
+    "homepage": "https://github.com/nodewave-engineering/table-to-xlsx#readme",
     "engines": {
         "node": ">=14.0.0"
     }

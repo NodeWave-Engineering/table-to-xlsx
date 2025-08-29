@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import Html2Xlsx, { convert, convertToBuffer, convertToFile, TitleConfig } from './index';
 
 async function testPackage() {
-    console.log('🧪 Testing table-to-xlsx package...\n');
+    console.log('🧪 Testing @nodewave/table-to-xlsx package...\n');
 
     const html = `
         <table>
@@ -102,9 +102,9 @@ async function testPackage() {
 
     console.log('\n🎉 All tests passed! The package supports all import styles correctly.');
     console.log('\n📋 Import styles supported:');
-    console.log('   ✅ import Html2Xlsx from "table-to-xlsx"');
-    console.log('   ✅ import * as Html2Xlsx from "table-to-xlsx"');
-    console.log('   ✅ import { convert, convertToFile, convertToBuffer } from "table-to-xlsx"');
+    console.log('   ✅ import Html2Xlsx from "@nodewave/table-to-xlsx"');
+    console.log('   ✅ import * as Html2Xlsx from "@nodewave/table-to-xlsx"');
+    console.log('   ✅ import { convert, convertToFile, convertToBuffer } from "@nodewave/table-to-xlsx"');
 }
 
 // Run tests

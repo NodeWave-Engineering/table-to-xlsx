@@ -1,4 +1,4 @@
-# table-to-xlsx
+# @nodewave/table-to-xlsx
 
 A lightweight Node.js package to convert HTML tables to Excel files with styling, handles merged cells, and customizable titles.
 
@@ -18,14 +18,14 @@ A lightweight Node.js package to convert HTML tables to Excel files with styling
 ## Installation
 
 ```bash
-npm install table-to-xlsx
+npm install @nodewave/table-to-xlsx
 ```
 
 ## Quick Start
 
 ### **Style 1: Default Import (Class-based)**
 ```typescript
-import Html2Xlsx from 'table-to-xlsx';
+import Html2Xlsx from '@nodewave/table-to-xlsx';
 
 const html = `
 <table>
@@ -54,7 +54,7 @@ const buffer = await Html2Xlsx.convert(html, titleConfig);
 
 ### **Style 2: Namespace Import**
 ```typescript
-import * as Html2Xlsx from 'table-to-xlsx';
+import * as Html2Xlsx from '@nodewave/table-to-xlsx';
 
 // Same usage as above
 await Html2Xlsx.convert(html, titleConfig, 'output.xlsx');
@@ -62,7 +62,7 @@ await Html2Xlsx.convert(html, titleConfig, 'output.xlsx');
 
 ### **Style 3: Functional Import**
 ```typescript
-import { convert, convertToFile, convertToBuffer } from 'table-to-xlsx';
+import { convert, convertToFile, convertToBuffer } from '@nodewave/table-to-xlsx';
 
 // Direct function calls
 await convert(html, titleConfig, 'output.xlsx');
@@ -136,7 +136,7 @@ The generated Excel files include:
 
 ### Basic Table
 ```typescript
-import { convert } from 'table-to-xlsx';
+import { convert } from '@nodewave/table-to-xlsx';
 
 const simpleHtml = `
 <table>
@@ -154,7 +154,7 @@ await convert(simpleHtml, {
 
 ### Table with Custom Titles
 ```typescript
-import Html2Xlsx from 'table-to-xlsx';
+import Html2Xlsx from '@nodewave/table-to-xlsx';
 
 await Html2Xlsx.convert(html, {
     numOfRows: 2,
@@ -164,7 +164,7 @@ await Html2Xlsx.convert(html, {
 
 ### Get as Buffer (for web apps)
 ```typescript
-import { convertToBuffer } from 'table-to-xlsx';
+import { convertToBuffer } from '@nodewave/table-to-xlsx';
 
 const buffer = await convertToBuffer(html, {
     numOfRows: 1,
