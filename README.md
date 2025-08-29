@@ -1,6 +1,6 @@
 # @nodewave/table-to-xlsx
 
-A lightweight Node.js package to convert HTML tables to Excel files with styling, handles merged cells, and customizable titles.
+A lightweight Node.js package to convert HTML tables to Excel files with styling, handles merged cells, and enhanced styling from HTML.
 
 ## This Package Depends on : 
 - cheerio (https://www.npmjs.com/package/cheerio) (for html parsing)
@@ -11,7 +11,7 @@ A lightweight Node.js package to convert HTML tables to Excel files with styling
 - 🚀 **Fast & Lightweight**: Uses Cheerio instead of Puppeteer for fast HTML parsing
 - 📊 **Advanced Table Support**: Handles complex tables with `colspan` and `rowspan`
 - 🎨 **Professional Styling**: Automatic styling with borders, colors, and formatting
-- 📝 **Custom Titles**: Add multiple title rows with custom text and styling
+- 🎨 **Enhanced Styling**: Parse and apply CSS styles from HTML (colors, fonts, alignment, borders)
 - 🔧 **Flexible Configuration**: Customize appearance and behavior
 - 📦 **Multiple Import Styles**: Support for class-based, functional, and namespace imports
 
@@ -40,24 +40,19 @@ const html = `
 </table>
 `;
 
-const titleConfig = {
-    numOfRows: 1,
-    titles: ['User Report']
-};
-
 // Convert to file
-await Html2Xlsx.convert(html, titleConfig, 'output.xlsx');
+await TableToXlsx.convert(html, 'output.xlsx');
 
 // Or convert to buffer
-const buffer = await Html2Xlsx.convert(html, titleConfig);
+const buffer = await TableToXlsx.convert(html);
 ```
 
 ### **Style 2: Namespace Import**
 ```typescript
-import * as Html2Xlsx from '@nodewave/table-to-xlsx';
+import * as TableToXlsx from '@nodewave/table-to-xlsx';
 
 // Same usage as above
-await Html2Xlsx.convert(html, titleConfig, 'output.xlsx');
+await TableToXlsx.convert(html, 'output.xlsx');
 ```
 
 ### **Style 3: Functional Import**
@@ -65,43 +60,34 @@ await Html2Xlsx.convert(html, titleConfig, 'output.xlsx');
 import { convert, convertToFile, convertToBuffer } from '@nodewave/table-to-xlsx';
 
 // Direct function calls
-await convert(html, titleConfig, 'output.xlsx');
-await convertToFile(html, 'output.xlsx', titleConfig);
-const buffer = await convertToBuffer(html, titleConfig);
+await convert(html, 'output.xlsx');
+await convertToFile(html, 'output.xlsx');
+const buffer = await convertToBuffer(html);
 ```
 
 ## API Reference
 
 ### **Main Methods**
 
-#### `convert(html: string, titleConfig: TitleConfig, outputPath?: string): Promise<string | Buffer>`
+#### `convert(html: string, outputPath?: string): Promise<string | Buffer>`
 
 Main conversion method. If `outputPath` is provided, saves to file and returns the path. If not provided, returns a Buffer.
 
 **Parameters:**
 - `html`: HTML string containing a table
-- `titleConfig`: Configuration for title rows
 - `outputPath`: Optional path where the Excel file will be saved
 
 **Returns:** Promise that resolves to output file path (string) or buffer (Buffer)
 
-#### `convertToFile(html: string, outputPath: string, titleConfig: TitleConfig): Promise<string>`
+#### `convertToFile(html: string, outputPath: string): Promise<string>`
 
 Converts HTML to Excel and saves to file.
 
-#### `convertToBuffer(html: string, titleConfig: TitleConfig): Promise<Buffer>`
+#### `convertToBuffer(html: string): Promise<Buffer>`
 
 Converts HTML to Excel and returns as buffer.
 
-## Interfaces
 
-### `TitleConfig`
-```typescript
-interface TitleConfig {
-    numOfRows: number;    // Number of title rows
-    titles: string[];     // Array of title texts
-}
-```
 
 ### `TableCell`
 ```typescript
@@ -132,6 +118,46 @@ The generated Excel files include:
 - **Font Sizing**: Larger fonts for titles, medium for headers, normal for data
 - **Cell Merging**: Proper handling of colspan and rowspan attributes
 
+### **Enhanced Custom Styling**
+
+You can now apply custom styles directly in your HTML:
+
+```html
+<table>
+    <tr>
+        <th style="background-color: #FF6B6B; color: white; font-size: 18px; font-weight: bold; text-align: center;">
+            Custom Header
+        </th>
+        <td style="background-color: #F7F7F7; text-align: left; font-size: 14px;">
+            Left-aligned content
+        </td>
+    </tr>
+    <tr>
+        <td class="text-right font-bold" style="background-color: #E8F5E8;">
+            Bold right-aligned text
+        </td>
+    </tr>
+</table>
+```
+
+#### **Supported CSS Properties:**
+
+- **`background-color`** - Custom cell backgrounds (hex, named colors)
+- **`text-align`** - Text alignment (`left`, `center`, `right`)
+- **`font-size`** - Custom font sizes (in pixels)
+- **`font-weight`** - Font weight (`normal`, `bold`)
+- **`color`** - Text color (hex, named colors)
+- **`border-color`** - Custom border colors
+- **`border-style`** - Border styles (`thin`, `medium`, `thick`)
+
+#### **CSS Class Support:**
+
+- **`.text-left`** - Left-aligned text
+- **`.text-center`** - Center-aligned text  
+- **`.text-right`** - Right-aligned text
+- **`.font-bold`** - Bold text
+- **`.font-normal`** - Normal weight text
+
 ## Examples
 
 ### Basic Table
@@ -146,32 +172,48 @@ const simpleHtml = `
 </table>
 `;
 
-await convert(simpleHtml, {
-    numOfRows: 1,
-    titles: ['Student Scores']
-}, 'scores.xlsx');
-```
-
-### Table with Custom Titles
-```typescript
-import Html2Xlsx from '@nodewave/table-to-xlsx';
-
-await Html2Xlsx.convert(html, {
-    numOfRows: 2,
-    titles: ['Department Report', 'Employee Performance']
-}, 'report.xlsx');
+await convert(simpleHtml, 'scores.xlsx');
 ```
 
 ### Get as Buffer (for web apps)
 ```typescript
 import { convertToBuffer } from '@nodewave/table-to-xlsx';
 
-const buffer = await convertToBuffer(html, {
-    numOfRows: 1,
-    titles: ['Report']
-});
+const buffer = await convertToBuffer(html);
 
 // Use buffer in web response or save to cloud storage
+```
+
+### Enhanced Styling Example
+```typescript
+import Html2Xlsx from '@nodewave/table-to-xlsx';
+
+const styledHtml = `
+<table>
+    <tr>
+        <th style="background-color: #2E86AB; color: white; font-size: 18px; text-align: center;">
+            Product Report
+        </th>
+    </tr>
+    <tr>
+        <td class="text-left font-bold" style="background-color: #F8F9FA;">
+            Product Name
+        </td>
+        <td class="text-center" style="background-color: #F8F9FA;">
+            Sales
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Laptop</td>
+        <td style="text-align: right; font-weight: bold; color: #28A745;">$1,200</td>
+    </tr>
+</table>
+`;
+
+await Html2Xlsx.convert(styledHtml, {
+    numOfRows: 1,
+    titles: ['Company Sales Report']
+}, 'styled-report.xlsx');
 ```
 
 ## Contributing
@@ -185,4 +227,26 @@ const buffer = await convertToBuffer(html, {
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
+
+## Changelog
+
+### v0.1.3
+- 🗑️ **Removed TitleConfig**: Simplified API by removing separate title configuration
+- 📝 **Direct HTML Titles**: Titles can now be set directly in HTML table headers
+- 🎯 **Cleaner API**: Simplified method signatures without titleConfig parameter
+
+### v0.1.2
+- Enhanced styling system with custom CSS support
+- Background colors, text alignment, font sizes, font weights
+- Border customization (color and style)
+- CSS class support (text-left, text-center, text-right, font-bold, font-normal)
+- Named color support (red, blue, green, etc.)
+- Backward compatible with existing functionality
+
+### v0.1.1
+- Initial release
+- HTML table parsing with Cheerio
+- Excel generation with styling
+- Support for merged cells
+- Multiple import styles (class-based, functional, namespace)
 
