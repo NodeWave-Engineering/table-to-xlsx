@@ -1,6 +1,6 @@
 {
     "name": "table-to-xlsx",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "description": "Convert HTML tables to Excel files with styling and merged cells",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",

@@ -188,7 +188,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Changelog
 
-### v1.0.0
+### v0.1.0
 - Initial release
 - HTML table parsing with Cheerio
 - Excel generation with styling
