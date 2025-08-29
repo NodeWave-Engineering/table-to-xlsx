@@ -46,18 +46,18 @@ const titleConfig = {
 };
 
 // Convert to file
-await TableToXlsx.convert(html, titleConfig, 'output.xlsx');
+await Html2Xlsx.convert(html, titleConfig, 'output.xlsx');
 
 // Or convert to buffer
-const buffer = await TableToXlsx.convert(html, titleConfig);
+const buffer = await Html2Xlsx.convert(html, titleConfig);
 ```
 
 ### **Style 2: Namespace Import**
 ```typescript
-import * as TableToXlsx from '@nodewave/table-to-xlsx';
+import * as Html2Xlsx from '@nodewave/table-to-xlsx';
 
 // Same usage as above
-await TableToXlsx.convert(html, titleConfig, 'output.xlsx');
+await Html2Xlsx.convert(html, titleConfig, 'output.xlsx');
 ```
 
 ### **Style 3: Functional Import**
@@ -154,9 +154,9 @@ await convert(simpleHtml, {
 
 ### Table with Custom Titles
 ```typescript
-import TableToXlsx from '@nodewave/table-to-xlsx';
+import Html2Xlsx from '@nodewave/table-to-xlsx';
 
-await TableToXlsx.convert(html, {
+await Html2Xlsx.convert(html, {
     numOfRows: 2,
     titles: ['Department Report', 'Employee Performance']
 }, 'report.xlsx');
@@ -186,12 +186,3 @@ const buffer = await convertToBuffer(html, {
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## Changelog
-
-### v0.1.0
-- Initial release
-- HTML table parsing with Cheerio
-- Excel generation with styling
-- Support for merged cells
-- Custom title configuration
-- Multiple import styles (class-based, functional, namespace)
