@@ -1,0 +1,50 @@
+{
+    "name": "table-to-xlsx",
+    "version": "1.0.0",
+    "description": "Convert HTML tables to Excel files with styling and merged cells",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "start": "ts-node index.ts",
+        "build": "tsc",
+        "dev": "ts-node --watch index.ts",
+        "prepublishOnly": "npm run build",
+        "test": "ts-node test.ts"
+    },
+    "dependencies": {
+        "cheerio": "^1.1.2",
+        "xlsx-js-style": "^1.2.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "ts-node": "^10.9.0",
+        "typescript": "^5.9.2"
+    },
+    "keywords": [
+        "html",
+        "excel",
+        "table",
+        "converter",
+        "xlsx",
+        "cheerio",
+        "nodejs"
+    ],
+    "author": "",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rizqyep/table-to-xlsx.git"
+    },
+    "bugs": {
+        "url": "https://github.com/rizqyep/table-to-xlsx/issues"
+    },
+    "homepage": "https://github.com/rizqyep/table-to-xlsx#readme",
+    "engines": {
+        "node": ">=14.0.0"
+    }
+}
