@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import Html2Xlsx, { convert, convertToBuffer, convertToFile, TitleConfig } from './index';
+import TableToXlsx, { convert, convertToBuffer, convertToFile, TitleConfig } from './index';
 
 async function testPackage() {
     console.log('🧪 Testing @nodewave/table-to-xlsx package...\n');
@@ -17,7 +17,7 @@ async function testPackage() {
     // Test 1: Default import (class-based)
     console.log('1. Testing default import (class-based)...');
     try {
-        const buffer = await Html2Xlsx.convert(html, titleConfig);
+        const buffer = await TableToXlsx.convert(html, titleConfig);
         console.log('✅ Default import successful:', {
             bufferSize: buffer instanceof Buffer ? buffer.length : 'N/A',
             isBuffer: buffer instanceof Buffer
@@ -82,7 +82,7 @@ async function testPackage() {
     console.log('\n5. Testing class-based file conversion...');
     try {
         const outputPath = './test-output-2.xlsx';
-        const result = await Html2Xlsx.convert(html, titleConfig, outputPath);
+        const result = await TableToXlsx.convert(html, titleConfig, outputPath);
 
         if (fs.existsSync(outputPath)) {
             console.log('✅ Class-based file conversion successful!');
@@ -102,8 +102,8 @@ async function testPackage() {
 
     console.log('\n🎉 All tests passed! The package supports all import styles correctly.');
     console.log('\n📋 Import styles supported:');
-    console.log('   ✅ import Html2Xlsx from "@nodewave/table-to-xlsx"');
-    console.log('   ✅ import * as Html2Xlsx from "@nodewave/table-to-xlsx"');
+    console.log('   ✅ import TableToXlsx from "@nodewave/table-to-xlsx"');
+    console.log('   ✅ import * as TableToXlsx from "@nodewave/table-to-xlsx"');
     console.log('   ✅ import { convert, convertToFile, convertToBuffer } from "@nodewave/table-to-xlsx"');
 }
 

@@ -1,4 +1,4 @@
-import * as Html2Xlsx from "./index"
+import * as TableToXlsx from "./index"
 
 
 async function demo() {
@@ -53,13 +53,13 @@ async function demo() {
         const outputPath = './tableTest.xlsx'
 
         // Custom title configuration
-        const customTitleConfig: Html2Xlsx.TitleConfig = {
+        const customTitleConfig: TableToXlsx.TitleConfig = {
             numOfRows: 3,
             titles: ['DEMO System', 'Sales Target Report', 'Q1-Q4 2024']
         }
 
         // Using the new class-based API
-        await Html2Xlsx.convert(htmlValue, customTitleConfig, outputPath)
+        await TableToXlsx.convert(htmlValue, customTitleConfig, outputPath)
         console.log('Conversion completed successfully!')
         console.log(`Excel file saved as: ${outputPath}`)
         console.log('The Excel file now contains title rows, proper table structure with merged cells, and styling!')

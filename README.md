@@ -25,7 +25,7 @@ npm install @nodewave/table-to-xlsx
 
 ### **Style 1: Default Import (Class-based)**
 ```typescript
-import Html2Xlsx from '@nodewave/table-to-xlsx';
+import TableToXlsx from '@nodewave/table-to-xlsx';
 
 const html = `
 <table>
@@ -46,18 +46,18 @@ const titleConfig = {
 };
 
 // Convert to file
-await Html2Xlsx.convert(html, titleConfig, 'output.xlsx');
+await TableToXlsx.convert(html, titleConfig, 'output.xlsx');
 
 // Or convert to buffer
-const buffer = await Html2Xlsx.convert(html, titleConfig);
+const buffer = await TableToXlsx.convert(html, titleConfig);
 ```
 
 ### **Style 2: Namespace Import**
 ```typescript
-import * as Html2Xlsx from '@nodewave/table-to-xlsx';
+import * as TableToXlsx from '@nodewave/table-to-xlsx';
 
 // Same usage as above
-await Html2Xlsx.convert(html, titleConfig, 'output.xlsx');
+await TableToXlsx.convert(html, titleConfig, 'output.xlsx');
 ```
 
 ### **Style 3: Functional Import**
@@ -154,9 +154,9 @@ await convert(simpleHtml, {
 
 ### Table with Custom Titles
 ```typescript
-import Html2Xlsx from '@nodewave/table-to-xlsx';
+import TableToXlsx from '@nodewave/table-to-xlsx';
 
-await Html2Xlsx.convert(html, {
+await TableToXlsx.convert(html, {
     numOfRows: 2,
     titles: ['Department Report', 'Employee Performance']
 }, 'report.xlsx');

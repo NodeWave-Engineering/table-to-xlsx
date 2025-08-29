@@ -22,7 +22,7 @@ export interface TitleConfig {
     titles: string[]
 }
 
-export default class Html2Xlsx {
+export default class TableToXlsx {
     /**
      * Convert HTML table to Excel file
      * @param html HTML string containing a table
@@ -271,9 +271,9 @@ export default class Html2Xlsx {
 }
 
 // Named exports for functional approach - properly bound to the class
-export const convert = Html2Xlsx.convert.bind(Html2Xlsx)
-export const convertToFile = Html2Xlsx.convertToFile.bind(Html2Xlsx)
-export const convertToBuffer = Html2Xlsx.convertToBuffer.bind(Html2Xlsx)
+export const convert = TableToXlsx.convert.bind(TableToXlsx)
+export const convertToFile = TableToXlsx.convertToFile.bind(TableToXlsx)
+export const convertToBuffer = TableToXlsx.convertToBuffer.bind(TableToXlsx)
 
 // Also export the class as a named export for namespace imports
-export { Html2Xlsx }
+export { TableToXlsx }
