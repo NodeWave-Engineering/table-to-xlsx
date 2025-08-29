@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import TableToXlsx, { convert, convertToBuffer, convertToFile, TitleConfig } from './index';
+import TableToXlsx, { convert, convertToBuffer, convertToFile } from './index';
 
 async function testPackage() {
     console.log('🧪 Testing @nodewave/table-to-xlsx package...\n');
@@ -12,12 +12,12 @@ async function testPackage() {
         </table>
     `;
 
-    const titleConfig: TitleConfig = { numOfRows: 1, titles: ['Test Report'] };
+
 
     // Test 1: Default import (class-based)
     console.log('1. Testing default import (class-based)...');
     try {
-        const buffer = await TableToXlsx.convert(html, titleConfig);
+        const buffer = await TableToXlsx.convert(html);
         console.log('✅ Default import successful:', {
             bufferSize: buffer instanceof Buffer ? buffer.length : 'N/A',
             isBuffer: buffer instanceof Buffer
@@ -30,7 +30,7 @@ async function testPackage() {
     // Test 2: Named imports (functional)
     console.log('\n2. Testing named imports (functional)...');
     try {
-        const buffer = await convert(html, titleConfig);
+        const buffer = await convert(html);
         console.log('✅ Named imports successful:', {
             bufferSize: buffer instanceof Buffer ? buffer.length : 'N/A',
             isBuffer: buffer instanceof Buffer
@@ -44,7 +44,7 @@ async function testPackage() {
     console.log('\n3. Testing file conversion with functional import...');
     try {
         const outputPath = './test-output.xlsx';
-        const result = await convertToFile(html, outputPath, titleConfig);
+        const result = await convertToFile(html, outputPath);
 
         if (fs.existsSync(outputPath)) {
             console.log('✅ File conversion successful!');
@@ -65,7 +65,7 @@ async function testPackage() {
     // Test 4: Buffer conversion with functional import
     console.log('\n4. Testing buffer conversion with functional import...');
     try {
-        const buffer = await convertToBuffer(html, titleConfig);
+        const buffer = await convertToBuffer(html);
 
         if (buffer instanceof Buffer && buffer.length > 0) {
             console.log('✅ Buffer conversion successful!');
@@ -82,7 +82,7 @@ async function testPackage() {
     console.log('\n5. Testing class-based file conversion...');
     try {
         const outputPath = './test-output-2.xlsx';
-        const result = await TableToXlsx.convert(html, titleConfig, outputPath);
+        const result = await TableToXlsx.convert(html, outputPath);
 
         if (fs.existsSync(outputPath)) {
             console.log('✅ Class-based file conversion successful!');
