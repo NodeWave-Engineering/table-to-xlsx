@@ -230,17 +230,18 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Changelog
 
-### v0.1.3
+### v0.2.0
 - 🗑️ **Removed TitleConfig**: Simplified API by removing separate title configuration
 - 📝 **Direct HTML Titles**: Titles can now be set directly in HTML table headers
 - 🎯 **Cleaner API**: Simplified method signatures without titleConfig parameter
-
-### v0.1.2
 - Enhanced styling system with custom CSS support
 - Background colors, text alignment, font sizes, font weights
 - Border customization (color and style)
 - CSS class support (text-left, text-center, text-right, font-bold, font-normal)
 - Named color support (red, blue, green, etc.)
+
+### v0.1.2
+
 - Backward compatible with existing functionality
 
 ### v0.1.1
