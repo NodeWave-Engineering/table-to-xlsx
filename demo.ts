@@ -7,7 +7,7 @@ async function demo() {
     <table>
         <thead>
             <tr>
-                <th style="background-color: #2E86AB; color: white; font-size: 20px; text-align: center;" colspan="4">
+                <th style="background-color: #2E86AB; color: white; font-size: 20px; text-align: center; border:none" colspan="4">
                     Enhanced Styling Demo
                 </th>
             </tr>
@@ -22,19 +22,19 @@ async function demo() {
         </thead>
         <tbody>
             <tr>
-                <td style="text-align: left; font-weight: bold; color: #2E86AB;">Laptop Pro</td>
+                <td style="text-align: center; font-weight: bold; color: #2E86AB;">Laptop Pro - Engineers Coders Laptop Pro</td>
                 <td class="text-center">Electronics</td>
                 <td style="text-align: right; font-weight: bold; color: #28A745;">$1,299</td>
                 <td class="text-center font-bold" style="background-color: #D4EDDA; color: #155724;">In Stock</td>
             </tr>
             <tr>
-                <td style="text-align: left; font-weight: bold; color: #2E86AB;">Wireless Mouse</td>
+                <td style="text-align: center; font-weight: bold; color: #2E86AB;">Wireless Mouse</td>
                 <td class="text-center">Accessories</td>
                 <td style="text-align: right; font-weight: bold; color: #28A745;">$49</td>
                 <td class="text-center font-bold" style="background-color: #F8D7DA; color: #721C24;">Low Stock</td>
             </tr>
             <tr>
-                <td style="text-align: left; font-weight: bold; color: #2E86AB;">USB Cable</td>
+                <td style="text-align: center; font-weight: bold; color: #2E86AB;">USB Cable</td>
                 <td class="text-center">Accessories</td>
                 <td style="text-align: right; font-weight: bold; color: #28A745;">$12</td>
                 <td class="text-center font-bold" style="background-color: #D4EDDA; color: #155724;">In Stock</td>
