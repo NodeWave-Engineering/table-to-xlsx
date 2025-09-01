@@ -216,6 +216,55 @@ await Html2Xlsx.convert(styledHtml, {
 }, 'styled-report.xlsx');
 ```
 
+
+### Handling Big Amount of Data 
+To handle big amount of data, says like more than 10K Rows, we recommend you to use the `createStreamProcessor` 
+
+You can take a look at the example below : 
+```ts
+async function testChunkStreaming() {
+    console.log('\n🔧 Testing chunk-based streaming...')
+
+    const processor = TableToXlsx.createStreamProcessor('./chunk-streaming.xlsx', {
+        chunkSize: 2000,
+        onChunk: (chunk, rows) => console.log(`  📦 Chunk ${chunk}: ${rows} total rows`)
+    })
+
+    // Send header
+    processor.writeHeader(`
+    <thead>
+        <tr>
+            <th style="background-color: #007bff; color: white;">ID</th>
+            <th style="background-color: #007bff; color: white;">Name</th>
+            <th style="background-color: #007bff; color: white;">Value</th>
+        </tr>
+        <tr>
+    </thead>`)
+
+    // Send data in chunks (simulating receiving chunks from external source)
+    const chunkSize = 10000
+    const totalRows = 1000000
+
+    for (let chunkStart = 1; chunkStart <= totalRows; chunkStart += chunkSize) {
+        const chunkEnd = Math.min(chunkStart + chunkSize - 1, totalRows)
+
+        // Build chunk HTML
+        let chunkHtml = ''
+        for (let i = chunkStart; i <= chunkEnd; i++) {
+            const bgColor = i % 2 === 0 ? '#ffffff' : '#FF9E54'
+            chunkHtml += `<tr><td style="background-color: ${bgColor};">${i}</td><td style="background-color: ${bgColor};">Item ${i}</td><td style="background-color: ${bgColor};">$${(Math.random() * 100).toFixed(2)}</td></tr>`
+        }
+
+        // Send chunk to processor
+        processor.writeChunk(chunkHtml)
+        console.log(`  📤 Sent chunk ${Math.ceil(chunkStart / chunkSize)} (rows ${chunkStart}-${chunkEnd})`)
+    }
+
+    await processor.finalize()
+    console.log('✅ Chunk streaming completed!')
+}
+```
+
 ## Contributing
 
 1. Fork the repository
