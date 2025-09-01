@@ -79,11 +79,9 @@ export default class TableToXlsx {
     }
 
     private static async parseHtmlTable(html: string): Promise<TableData> {
-        // Load HTML with Cheerio
         const $ = cheerio.load(html)
-
-        // Find the table
         const table = $('table')
+
         if (table.length === 0) {
             throw new Error('No table found in HTML')
         }
@@ -100,10 +98,7 @@ export default class TableToXlsx {
                 const $cell = $(cellElement)
                 const colspan = parseInt($cell.attr('colspan') || '1')
                 const rowspan = parseInt($cell.attr('rowspan') || '1')
-
                 const isHeader = $cell.prop('tagName')?.toLowerCase() === 'th' || false
-
-                // Parse styling information
                 const styles = this.parseCellStyles($cell)
 
                 parsedCells.push({
@@ -125,7 +120,6 @@ export default class TableToXlsx {
     private static parseCellStyles($cell: cheerio.Cheerio<any>): TableCell['styles'] {
         const styles: TableCell['styles'] = {}
 
-        // Parse inline styles
         const styleAttr = $cell.attr('style')
         if (styleAttr) {
             const stylePairs = styleAttr.split(';').filter(s => s.trim())
@@ -159,21 +153,22 @@ export default class TableToXlsx {
                         styles.color = this.normalizeColor(value)
                         break
                     case 'border':
-                        // Handle shorthand border property
-
                         if (value === 'none') {
                             styles.borderStyle = 'none'
-
                         } else {
-                            // Parse other border values if needed
                             const borderParts = value.split(' ')
                             borderParts.forEach(part => {
                                 if (['thin', 'medium', 'thick', 'none'].includes(part)) {
                                     styles.borderStyle = part as 'thin' | 'medium' | 'thick' | 'none'
-
                                 } else if (part.startsWith('#') || part.match(/^[a-zA-Z]+$/)) {
-                                    styles.borderColor = this.normalizeColor(part)
-
+                                    styles.borderColor = this.normalizeColor(value)
+                                } else if (part.endsWith('px')) {
+                                    const pixelValue = parseInt(part)
+                                    if (!isNaN(pixelValue)) {
+                                        if (pixelValue <= 1) styles.borderStyle = 'thin'
+                                        else if (pixelValue <= 3) styles.borderStyle = 'medium'
+                                        else styles.borderStyle = 'thick'
+                                    }
                                 }
                             })
                         }
@@ -190,7 +185,6 @@ export default class TableToXlsx {
             })
         }
 
-        // Parse CSS classes for common styling
         const classAttr = $cell.attr('class')
         if (classAttr) {
             const classes = classAttr.split(' ').filter(c => c.trim())
@@ -223,18 +217,17 @@ export default class TableToXlsx {
         return Object.keys(styles).length > 0 ? styles : undefined
     }
 
+
+
     private static normalizeColor(color: string): string {
-        // Handle different color formats
         if (color.startsWith('#')) {
-            return color.substring(1) // Remove the # for Excel
+            return color.substring(1)
         }
 
         if (color.startsWith('rgb(') || color.startsWith('rgba(')) {
-            // Convert RGB to hex (simplified)
-            return '000000' // Default to black for now
+            return '000000'
         }
 
-        // Handle named colors
         const colorMap: { [key: string]: string } = {
             'red': 'FF0000',
             'green': '00FF00',
@@ -256,17 +249,24 @@ export default class TableToXlsx {
         return normalizedColor ? normalizedColor : '000000'
     }
 
-    private static getCellData(row: number, col: number, tableData?: TableData): { content: string, styles?: any } | undefined {
+    private static getCellData(row: number, col: number, tableData?: TableData, excelData?: any[][]): { content: string, styles?: any } | undefined {
+        if (excelData && excelData[row] && excelData[row][col]) {
+            const cellData = excelData[row][col]
+            if (typeof cellData === 'object' && cellData !== null && 'styles' in cellData) {
+                return {
+                    content: cellData.content,
+                    styles: cellData.styles
+                }
+            }
+        }
+
         if (!tableData) return undefined
 
-        // Calculate the actual row index in the table data
         const tableRowIndex = row
         if (tableRowIndex < 0 || tableRowIndex >= tableData.rows.length) return undefined
 
         const tableRow = tableData.rows[tableRowIndex]
         if (col >= tableRow.cells.length) return undefined
-
-
 
         return {
             content: tableRow.cells[col].content,
@@ -286,53 +286,47 @@ export default class TableToXlsx {
     }
 
     private static createExcelData(tableData: TableData): { data: any[][], merges: any[] } {
-        // Create a 2D array representing the Excel sheet
         const excelData: any[][] = []
         const merges: any[] = []
 
-        // Initialize table rows with empty cells
         for (let i = 0; i < tableData.rows.length; i++) {
             excelData[i] = new Array(tableData.maxCols).fill('')
         }
 
         console.log(`Processing ${tableData.rows.length} rows with maxCols: ${tableData.maxCols}`)
 
-        // Fill in the table data respecting colspan and rowspan
         tableData.rows.forEach((row, rowIndex) => {
             let currentCol = 0
 
             row.cells.forEach((cell) => {
-
-                // Find the next available cell position with safety check
                 while (currentCol < tableData.maxCols && excelData[rowIndex][currentCol] !== '') {
                     currentCol++
                 }
 
-                // Safety check: if we've exceeded the column limit, skip this cell
                 if (currentCol >= tableData.maxCols) {
                     return
                 }
 
-                // Place the cell content and store the cell object for styling
                 excelData[rowIndex][currentCol] = {
                     content: cell.content,
                     styles: cell.styles
                 }
 
-                // Add merge information for colspan/rowspan
                 if (cell.colspan > 1 || cell.rowspan > 1) {
                     merges.push({
-                        s: { r: rowIndex, c: currentCol }, // start cell
-                        e: { r: rowIndex + cell.rowspan - 1, c: currentCol + cell.colspan - 1 } // end cell
+                        s: { r: rowIndex, c: currentCol },
+                        e: { r: rowIndex + cell.rowspan - 1, c: currentCol + cell.colspan - 1 }
                     })
                 }
 
-                // Mark cells that are covered by colspan/rowspan
                 for (let r = 0; r < cell.rowspan; r++) {
                     for (let c = 0; c < cell.colspan; c++) {
-                        if (r === 0 && c === 0) continue // Skip the main cell
+                        if (r === 0 && c === 0) continue
                         if (rowIndex + r < excelData.length && currentCol + c < excelData[0].length) {
-                            excelData[rowIndex + r][currentCol + c] = '' // Empty for merged cells
+                            excelData[rowIndex + r][currentCol + c] = {
+                                content: '',
+                                styles: cell.styles
+                            }
                         }
                     }
                 }
@@ -345,27 +339,55 @@ export default class TableToXlsx {
     }
 
     private static createExcelFile(excelData: any[][], merges: any[], outputPath: string, tableData?: TableData) {
-        // Create a new workbook
         const workbook = XLSX.utils.book_new()
-
-        // Convert data back to simple values for Excel
         const simpleData = this.convertToSimpleData(excelData)
-
-        // Create a worksheet from the data
         const worksheet = XLSX.utils.aoa_to_sheet(simpleData)
 
-        // Apply the merges
         if (merges.length > 0) {
             worksheet['!merges'] = merges
         }
 
-        // Add styling to all cells (center alignment, borders, etc.)
-        this.applyStyling(worksheet, tableData)
+        this.applyStyling(worksheet, tableData, excelData)
 
-        // Add the worksheet to the workbook
+        const colWidths = [];
+        const maxCols = tableData?.maxCols || simpleData[0]?.length || 1;
+
+        for (let colIndex = 0; colIndex < maxCols; colIndex++) {
+            let maxLength = 0;
+
+            for (let rowIndex = 0; rowIndex < simpleData.length; rowIndex++) {
+                const row = simpleData[rowIndex];
+                if (row && row[colIndex]) {
+                    const cellValue = String(row[colIndex]);
+                    maxLength = Math.max(maxLength, cellValue.length);
+                }
+            }
+
+            colWidths.push({ wch: maxLength + 2 });
+        }
+
+        worksheet['!cols'] = colWidths;
+
+        const rowHeights = simpleData.map((row, rowIndex) => {
+            let maxHeight = 15;
+
+            row.forEach((cellValue, colIndex) => {
+                if (cellValue) {
+                    const cellData = this.getCellData(rowIndex, colIndex, tableData, excelData);
+                    const fontSize = cellData?.styles?.fontSize || 11;
+                    const fontHeight = fontSize * 1.2;
+                    const contentLength = String(cellValue).length;
+                    const estimatedLines = Math.ceil(contentLength / 30);
+                    const contentHeight = estimatedLines * fontHeight;
+                    maxHeight = Math.max(maxHeight, fontHeight, contentHeight);
+                }
+            });
+
+            return { hpt: Math.max(maxHeight, 15) };
+        });
+
+        worksheet['!rows'] = rowHeights;
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-
-        // Write the Excel file
         XLSX.writeFile(workbook, outputPath)
 
         console.log(`Excel file created successfully: ${outputPath}`)
@@ -389,7 +411,58 @@ export default class TableToXlsx {
         }
 
         // Add styling to all cells (center alignment, borders, etc.)
-        this.applyStyling(worksheet, tableData)
+        this.applyStyling(worksheet, tableData, excelData)
+
+        // Calculate column widths by looking at all cells in each column
+        const colWidths = [];
+        const maxCols = tableData?.maxCols || simpleData[0]?.length || 1;
+
+        for (let colIndex = 0; colIndex < maxCols; colIndex++) {
+            let maxLength = 0;
+
+            // Check each row for this column
+            for (let rowIndex = 0; rowIndex < simpleData.length; rowIndex++) {
+                const row = simpleData[rowIndex];
+                if (row && row[colIndex]) {
+                    const cellValue = String(row[colIndex]);
+                    maxLength = Math.max(maxLength, cellValue.length);
+                }
+            }
+
+            colWidths.push({ wch: maxLength + 2 });
+        }
+
+        // Apply the calculated widths to the worksheet
+        worksheet['!cols'] = colWidths;
+
+        // Calculate row heights based on content and font sizes
+        const rowHeights = simpleData.map((row, rowIndex) => {
+            let maxHeight = 15; // Default minimum height
+
+            row.forEach((cellValue, colIndex) => {
+                if (cellValue) {
+                    const cellData = this.getCellData(rowIndex, colIndex, tableData, excelData);
+                    const fontSize = cellData?.styles?.fontSize || 11;
+
+                    // Calculate height based on font size and content length
+                    // Excel row height is roughly 1.2x the font size
+                    const fontHeight = fontSize * 1.2;
+
+                    // If content is long, we might need more height for wrapping
+                    const contentLength = String(cellValue).length;
+                    const estimatedLines = Math.ceil(contentLength / 30); // Rough estimate: 30 chars per line
+                    const contentHeight = estimatedLines * fontHeight;
+
+                    maxHeight = Math.max(maxHeight, fontHeight, contentHeight);
+                }
+
+            });
+
+            return { hpt: Math.max(maxHeight, 15) }; // Minimum height of 15 points
+        });
+
+        // Apply the calculated heights to the worksheet
+        worksheet['!rows'] = rowHeights;
 
         // Add the worksheet to the workbook
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
@@ -398,23 +471,19 @@ export default class TableToXlsx {
         return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
     }
 
-    private static applyStyling(worksheet: XLSX.WorkSheet, tableData?: TableData) {
+    private static applyStyling(worksheet: XLSX.WorkSheet, tableData?: TableData, excelData?: any[][]) {
         const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
 
         for (let R = range.s.r; R <= range.e.r; ++R) {
             for (let C = range.s.c; C <= range.e.c; ++C) {
                 const cellAddress = XLSX.utils.encode_cell({ r: R, c: C })
-
-                // Get cell data to check for custom styles (even for empty cells)
-                const cellData = this.getCellData(R, C, tableData)
+                const cellData = this.getCellData(R, C, tableData, excelData)
                 const customStyles = cellData?.styles
 
-                // If cell doesn't exist, create it with empty content
                 if (!worksheet[cellAddress]) {
                     worksheet[cellAddress] = { v: '' }
                 }
 
-                // Create cell style object
                 const cellStyle: any = {
                     alignment: {
                         horizontal: customStyles?.textAlign || 'center',
@@ -423,7 +492,7 @@ export default class TableToXlsx {
                     },
                     font: {
                         bold: customStyles?.fontWeight === 'bold' || false,
-                        size: customStyles?.fontSize || 11,
+                        sz: customStyles?.fontSize || 11,
                         color: customStyles?.color ? { rgb: customStyles.color } : undefined
                     },
                     fill: {
@@ -433,7 +502,6 @@ export default class TableToXlsx {
                     }
                 }
 
-                // Only add borders if borderStyle is not 'none'
                 if (customStyles?.borderStyle !== 'none') {
                     cellStyle.border = {
                         top: {
@@ -456,7 +524,6 @@ export default class TableToXlsx {
                 }
 
                 worksheet[cellAddress].s = cellStyle
-
             }
         }
     }
