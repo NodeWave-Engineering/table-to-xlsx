@@ -217,7 +217,7 @@ await Html2Xlsx.convert(styledHtml, {
 ```
 
 
-### Handling Big Amount of Data 
+### Streaming API
 To handle big amount of data, says like more than 10K Rows, we recommend you to use the `createStreamProcessor` 
 
 You can take a look at the example below : 
@@ -278,6 +278,10 @@ async function testChunkStreaming() {
 MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Changelog
+
+### v0.4.0
+- Added `createStreamProcessor` , which support streaming capability via `chunking` method , - Added `createStreamProcessor`, which supports streaming capability via `chunking` method, see [Streaming API](#streaming-api)
+
 
 ### v0.3.0
 
