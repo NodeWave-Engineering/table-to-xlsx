@@ -3,21 +3,29 @@ import * as TableToXlsx from "./index"
 async function testChunkStreaming() {
     console.log('\n🔧 Testing chunk-based streaming...')
 
-    const processor = TableToXlsx.createStreamProcessor('./chunk-streaming.xlsx', {
+    const processor = TableToXlsx.createStreamProcessor('./chunk-streaming2.xlsx', {
         chunkSize: 2000,
         onChunk: (chunk, rows) => console.log(`  📦 Chunk ${chunk}: ${rows} total rows`)
     })
 
     // Send header
-    processor.writeHeader(`
-    <thead>
-        <tr>
-            <th style="background-color: #007bff; color: white;">ID</th>
-            <th style="background-color: #007bff; color: white;">Name</th>
-            <th style="background-color: #007bff; color: white;">Value</th>
-        </tr>
-        <tr>
-    </thead>`)
+    processor.writeHeader(/* html */`
+       <table>
+            <thead>
+                <tr>
+                    <th style="background-color: #007bff; color: white;" colspan="3">Users</th>
+                </tr>
+                <tr>
+                    <th style="background-color: #007bff; color: white;" colspan="3">Products</th>
+                </tr>
+                <tr>
+                    <th style="background-color: #007bff; color: white;">ID</th>
+                    <th style="background-color: #007bff; color: white;">Name</th>
+                    <th style="background-color: #007bff; color: white;">Value</th>
+                </tr>
+            </thead>
+        </table>
+    `)
 
     // Send data in chunks (simulating receiving chunks from external source)
     const chunkSize = 10000
