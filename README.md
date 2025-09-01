@@ -279,6 +279,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Changelog
 
+
+### v0.4.1
+- Handle styling and colspans issue on large dataset via stream processor
+
 ### v0.4.0
 - Added `createStreamProcessor` , which support streaming capability via `chunking` method , - Added `createStreamProcessor`, which supports streaming capability via `chunking` method, see [Streaming API](#streaming-api)
 
