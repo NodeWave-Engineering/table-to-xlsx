@@ -230,6 +230,12 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Changelog
 
+### v0.3.0
+
+- Address issue on bordering for col spanned column and rows 
+- Address issue on font sizing 
+- Implement auto fit for column to match content width and height
+
 ### v0.2.0
 - 🗑️ **Removed TitleConfig**: Simplified API by removing separate title configuration
 - 📝 **Direct HTML Titles**: Titles can now be set directly in HTML table headers
