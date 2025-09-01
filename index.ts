@@ -122,28 +122,41 @@ export default class TableToXlsx {
                 throw new Error('Header already processed')
             }
 
-            // Parse header HTML
-            const $ = cheerio.load(`<table>${headerHtml}</table>`)
+            // Parse header HTML - handle both complete tables and fragments
+            let $
+            if (headerHtml.includes('<table')) {
+                // Already has table wrapper
+                $ = cheerio.load(headerHtml)
+            } else {
+                // Fragment - wrap it properly
+                $ = cheerio.load(`<table>${headerHtml}</table>`)
+            }
+
             $('tr').each((_, row) => {
                 const cells: TableCell[] = []
                 $(row).find('th, td').each((_, cell) => {
                     const $cell = $(cell)
+                    const colspan = parseInt($cell.attr('colspan') || '1')
+                    const rowspan = parseInt($cell.attr('rowspan') || '1')
+
                     cells.push({
                         content: $cell.text().trim(),
-                        colspan: parseInt($cell.attr('colspan') || '1'),
-                        rowspan: parseInt($cell.attr('rowspan') || '1'),
+                        colspan: colspan,
+                        rowspan: rowspan,
                         isHeader: true,
                         styles: this.parseCellStyles($cell)
                     })
                 })
                 if (cells.length > 0) {
                     allRows.push({ cells })
-                    maxCols = Math.max(maxCols, cells.length)
+                    // Calculate max cols considering colspan
+                    const totalCols = cells.reduce((sum, cell) => sum + cell.colspan, 0)
+                    maxCols = Math.max(maxCols, totalCols)
                 }
             })
 
             headerProcessed = true
-            console.log(`[TableToXlsx] 📋 Header processed: ${allRows.length} header rows`)
+            console.log(`[TableToXlsx] 📋 Header processed: ${allRows.length} header rows, ${maxCols} max columns`)
         }
 
         const writeRow = (rowHtml: string) => {
@@ -151,23 +164,36 @@ export default class TableToXlsx {
                 throw new Error('Header must be processed before writing rows')
             }
 
-            // Parse single row HTML
-            const $ = cheerio.load(`<table><tbody>${rowHtml}</tbody></table>`)
+            // Parse single row HTML - handle both complete tables and fragments
+            let $
+            if (rowHtml.includes('<table')) {
+                // Already has table wrapper
+                $ = cheerio.load(rowHtml)
+            } else {
+                // Fragment - wrap it properly
+                $ = cheerio.load(`<table><tbody>${rowHtml}</tbody></table>`)
+            }
+
             $('tr').each((_, row) => {
                 const cells: TableCell[] = []
                 $(row).find('td, th').each((_, cell) => {
                     const $cell = $(cell)
+                    const colspan = parseInt($cell.attr('colspan') || '1')
+                    const rowspan = parseInt($cell.attr('rowspan') || '1')
+
                     cells.push({
                         content: $cell.text().trim(),
-                        colspan: parseInt($cell.attr('colspan') || '1'),
-                        rowspan: parseInt($cell.attr('rowspan') || '1'),
-                        isHeader: false,
+                        colspan: colspan,
+                        rowspan: rowspan,
+                        isHeader: $cell.prop('tagName') === 'TH',
                         styles: this.parseCellStyles($cell)
                     })
                 })
                 if (cells.length > 0) {
                     allRows.push({ cells })
-                    maxCols = Math.max(maxCols, cells.length)
+                    // Calculate max cols considering colspan
+                    const totalCols = cells.reduce((sum, cell) => sum + cell.colspan, 0)
+                    maxCols = Math.max(maxCols, totalCols)
                     rowCount++
                 }
             })
@@ -185,23 +211,36 @@ export default class TableToXlsx {
                 throw new Error('Header must be processed before writing chunks')
             }
 
-            // Parse chunk of rows
-            const $ = cheerio.load(`<table><tbody>${htmlChunk}</tbody></table>`)
+            // Parse chunk of rows - handle both complete tables and fragments
+            let $
+            if (htmlChunk.includes('<table')) {
+                // Already has table wrapper
+                $ = cheerio.load(htmlChunk)
+            } else {
+                // Fragment - wrap it properly
+                $ = cheerio.load(`<table><tbody>${htmlChunk}</tbody></table>`)
+            }
+
             $('tr').each((_, row) => {
                 const cells: TableCell[] = []
                 $(row).find('td, th').each((_, cell) => {
                     const $cell = $(cell)
+                    const colspan = parseInt($cell.attr('colspan') || '1')
+                    const rowspan = parseInt($cell.attr('rowspan') || '1')
+
                     cells.push({
                         content: $cell.text().trim(),
-                        colspan: parseInt($cell.attr('colspan') || '1'),
-                        rowspan: parseInt($cell.attr('rowspan') || '1'),
-                        isHeader: false,
+                        colspan: colspan,
+                        rowspan: rowspan,
+                        isHeader: $cell.prop('tagName') === 'TH',
                         styles: this.parseCellStyles($cell)
                     })
                 })
                 if (cells.length > 0) {
                     allRows.push({ cells })
-                    maxCols = Math.max(maxCols, cells.length)
+                    // Calculate max cols considering colspan
+                    const totalCols = cells.reduce((sum, cell) => sum + cell.colspan, 0)
+                    maxCols = Math.max(maxCols, totalCols)
                     rowCount++
                 }
             })
@@ -426,8 +465,10 @@ export default class TableToXlsx {
 
                     rowData[currentCol] = cell.content
 
-                    // Only track merges for the first few rows to avoid memory issues
-                    if (actualRowIndex < 100 && (cell.colspan > 1 || cell.rowspan > 1)) {
+                    // Track merges for header rows (first 20 rows) or if it's a small merge area
+                    const isHeaderArea = actualRowIndex < 20
+                    const isSmallMerge = (cell.colspan * cell.rowspan) <= 10
+                    if ((isHeaderArea || isSmallMerge) && (cell.colspan > 1 || cell.rowspan > 1)) {
                         merges.push({
                             s: { r: actualRowIndex, c: currentCol },
                             e: { r: actualRowIndex + cell.rowspan - 1, c: currentCol + cell.colspan - 1 }
@@ -447,6 +488,11 @@ export default class TableToXlsx {
         }
 
         const worksheet = XLSX.utils.aoa_to_sheet(simpleData)
+
+        // Apply merges
+        if (merges.length > 0) {
+            worksheet['!merges'] = merges
+        }
 
         // Apply minimal styling only to header rows
         this.applyStyling(worksheet, tableData)
@@ -828,41 +874,6 @@ export default class TableToXlsx {
 
         // Write to buffer
         return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
-    }
-
-    /**
-     * Apply minimal styling only to header rows for large tables
-     */
-    private static applyMinimalStyling(worksheet: XLSX.WorkSheet, tableData: TableData) {
-        const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
-
-        // Only style the first few rows (headers)
-        const maxStyledRows = Math.min(10, range.e.r)
-
-        for (let R = 0; R <= maxStyledRows; ++R) {
-            for (let C = range.s.c; C <= range.e.c; ++C) {
-                const cellAddress = XLSX.utils.encode_cell({ r: R, c: C })
-
-                if (!worksheet[cellAddress]) {
-                    worksheet[cellAddress] = { v: '' }
-                }
-
-                // Basic styling for headers
-                const cellStyle: any = {
-                    alignment: { horizontal: 'center', vertical: 'center' },
-                    font: { bold: R === 0, size: 11 },
-                    fill: { fgColor: { rgb: R === 0 ? 'F0F0F0' : 'FFFFFF' } },
-                    border: {
-                        top: { style: 'thin' },
-                        bottom: { style: 'thin' },
-                        left: { style: 'thin' },
-                        right: { style: 'thin' }
-                    }
-                }
-
-                worksheet[cellAddress].s = cellStyle
-            }
-        }
     }
 
     /**
