@@ -1,6 +1,6 @@
 {
     "name": "@nodewave/table-to-xlsx",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "description": "Convert HTML tables to Excel files with styling and merged cells",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
